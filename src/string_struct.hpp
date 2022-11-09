@@ -1,0 +1,3 @@
+struct StringResult{
+   char* result;
+};

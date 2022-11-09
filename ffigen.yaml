@@ -1,0 +1,45 @@
+# Run with `flutter pub run ffigen --config ffigen.yaml`.
+name: FfiOpencvBindings
+description: |
+  Bindings for `src/ffi_opencv.h`.
+
+  Regenerate bindings with `flutter pub run ffigen --config ffigen.yaml`.
+output: 'lib/ffi_opencv_bindings_generated.dart'
+headers:
+  entry-points:
+    - 'src/ffi_opencv.hpp'
+type-map:
+  'native-types': # Targets native types.
+    'char':
+      'lib': 'ffi_pack' # predefined import.
+      'c-type': 'Utf8'
+      'dart-type': 'String'
+functions:
+  exclude: 
+     - "_.*"
+structs:     
+  exclude: 
+     - "_.*"
+unions:     
+  exclude: 
+     - "_.*"
+enums:     
+  exclude: 
+     - "_.*" 
+globals:     
+  exclude: 
+     - "_.*" 
+macros:     
+  exclude: 
+     - "_.*"                   
+
+library-imports:
+  ffi_pack: 'package:ffi/ffi.dart'
+
+preamble: |
+  // ignore_for_file: always_specify_types
+  // ignore_for_file: camel_case_types
+  // ignore_for_file: non_constant_identifier_names
+comments:
+  style: any
+  length: full
