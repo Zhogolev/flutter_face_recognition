@@ -1,3 +1,0 @@
-struct StringResult{
-   char* result;
-};

@@ -11,34 +11,31 @@ set(CMAKE_VERBOSE_MAKEFILE ON)
 
 find_package(OpenCV REQUIRED)
 
-add_library(ffi_opencv
-  SHARED
-  ../ios/Classes/ffi_opencv.cpp
-  src/face_detctor.cpp
-  #ffi_opencv.cpp
-)
 
-target_include_directories(
-        ffi_opencv
-        PRIVATE
-        src
-)
+
+add_library(ffi_opencv
+        SHARED
+        ../ios/Classes/ffi_opencv.cpp
+        ../ios/Classes/src/face_detctor.cpp
+        ../ios/Classes/src/logger.cpp
+        #ffi_opencv.cpp
+        )
 
 
 message(WARNING "ANDROID_NDK_ABI_NAME ${ANDROID_NDK_ABI_NAME}")
 
 
-set_target_properties(ffi_opencv 
-  PROPERTIES
-  PUBLIC_HEADER 
-  "ffi_opencv.hpp"
-  OUTPUT_NAME "ffi_opencv"
-)
+set_target_properties(ffi_opencv
+        PROPERTIES
+        PUBLIC_HEADER
+        "../ios/Classes/ffi_opencv.hpp"
+        OUTPUT_NAME "ffi_opencv"
+        )
 
 # target_compile_definitions(ffi_opencv PUBLIC DART_SHARED_LIB)
 
 
 target_link_libraries(
-    ffi_opencv
-    ${OpenCV_LIBS}
+        ffi_opencv
+        ${OpenCV_LIBS}
 )
