@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'detection_page.dart';
+import 'detection_page_2.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();

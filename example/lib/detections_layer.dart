@@ -14,7 +14,7 @@ class DetectionsLayer extends StatelessWidget {
   Widget build(BuildContext context) {
     return CustomPaint(
       size: MediaQuery.of(context).size,
-      painter: ArucosPainter(faces: arucos),
+      foregroundPainter: ArucosPainter(faces: arucos),
       child: child,
     );
   }
@@ -37,18 +37,20 @@ class ArucosPainter extends CustomPainter {
     if (faces.isEmpty) {
       return;
     }
+    print(size);
     print(faces);
-
+    // 1280 x 720
+    // 756 x 360
     final count = faces.length ~/ 4;
     for (int i = 0; i < count; ++i) {
-      final tlx = faces[i];
-      final tly = faces[i + 1];
-      final brx = faces[i + 2];
-      final bry = faces[i + 3];
+      final tly = faces[i] * 756 / 1280;
+      final tlx = faces[i + 1] * 360 / 720;
+      final bry = faces[i + 2] * 756 / 1280;
+      final brx = faces[i + 3] * 360 / 720;
       final from = Offset(tlx, tly);
-      final to = Offset(brx, bry);
+      final size = Size(brx - tlx, bry - tly);
       //canvas.drawRect(Rect.fromLTRB(tlx, tly, brx, bry), _paint);
-      canvas.drawLine(from, to, _paint);
+      canvas.drawRect(from & size, _paint);
     }
   }
 

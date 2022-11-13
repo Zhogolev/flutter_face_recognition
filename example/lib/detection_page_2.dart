@@ -16,14 +16,14 @@ class FullInitData {
   });
 }
 
-class DetectionPage extends StatefulWidget {
-  const DetectionPage({Key? key}) : super(key: key);
+class DetectionPage2 extends StatefulWidget {
+  const DetectionPage2({Key? key}) : super(key: key);
 
   @override
   _DetectionPageState createState() => _DetectionPageState();
 }
 
-class _DetectionPageState extends State<DetectionPage>
+class _DetectionPageState extends State<DetectionPage2>
     with WidgetsBindingObserver {
   CameraController? _camController;
   int _camFrameRotation = 0;
@@ -91,8 +91,6 @@ class _DetectionPageState extends State<DetectionPage>
 
     try {
       await _camController!.initialize();
-      await _camController!
-          .startImageStream((image) => _processCameraImage(image));
     } catch (e) {
       log("Error initializing camera, error: ${e.toString()}");
     }
@@ -101,42 +99,6 @@ class _DetectionPageState extends State<DetectionPage>
       setState(() {});
     }
     return true;
-  }
-
-  void _processCameraImage(CameraImage image) async {
-    if (_detectionInProgress ||
-        !mounted ||
-        DateTime.now().millisecondsSinceEpoch - _lastRun < 100) {
-      return;
-    }
-    if (_camFrameToScreenScale == 0) {
-      var w = (_camFrameRotation == 0 || _camFrameRotation == 180)
-          ? image.width
-          : image.height;
-      _camFrameToScreenScale = MediaQuery.of(context).size.width / w;
-    }
-
-    _detectionInProgress = true;
-    final data = await FaceDetectorProvoder.detect(image, _camFrameRotation);
-
-    final res = data?.data;
-    _detectionInProgress = false;
-    _lastRun = DateTime.now().millisecondsSinceEpoch;
-
-    if (!mounted || res == null) {
-      return;
-    }
-
-    if ((res.length / 4) != (res.length ~/ 4)) {
-      log('Got invalid response from FaceDetector, number of coords is ${res.length} and does not represent complete arucos with 4 corners');
-      return;
-    }
-
-    final faces = res.map((x) => x.toDouble()).toList(growable: false);
-
-    setState(() {
-      _faces = faces;
-    });
   }
 
   @override
@@ -148,10 +110,53 @@ class _DetectionPageState extends State<DetectionPage>
         ),
       );
     }
+    return Stack(
+      children: [
+        Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: CameraPreview(_camController!)),
+        Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: SizedBox(
+              height: 56,
+              child: TextButton(
+                child: const Text('Process'),
+                onPressed: () async {
+                  try {
+                    XFile file = await _camController!.takePicture();
+                    final path = file.path;
+                    final filename = path.split('/').last;
+                    final folder = path.replaceAll(filename, "");
+                    final ext = filename.split(".").last;
+                    final date = DateTime.now().millisecondsSinceEpoch;
+                    final savedFile = '$folder$date.$ext';
+                    await FaceDetectorProvoder.detectAndSave(path, savedFile);
 
-    return DetectionsLayer(
-      arucos: _faces,
-      child: CameraPreview(_camController!),
+                    await File(file.path).delete();
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (ctx) => DetectedFile(path: savedFile)));
+                  } catch (e) {
+                    print(e);
+                  }
+                },
+              ),
+            ))
+      ],
     );
+  }
+}
+
+class DetectedFile extends StatelessWidget {
+  final String path;
+  const DetectedFile({Key? key, required this.path}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(child: Image.file(File(path)));
   }
 }
